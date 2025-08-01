@@ -82,8 +82,13 @@ class SlideshowMaker:
         # Create clip with specified duration
         clip = ImageClip(image_path, duration=self.image_duration)
         
-        # For now, skip resizing to avoid file locking issues
-        # The optimization will come from limiting file count and using fast encoding
+        # Simple resize to target resolution - this will work reliably
+        # and still provide good image sizing for presentation
+        target_width, target_height = self.resolution
+        
+        # Resize to fit the target resolution while maintaining aspect ratio
+        clip = clip.resize((target_width, target_height))
+        
         return clip
     
     def create_video_clip(self, video_path):
@@ -95,6 +100,10 @@ class SlideshowMaker:
         if clip.duration > max_duration:
             print(f"  Trimming video from {clip.duration:.1f}s to {max_duration}s")
             clip = clip.subclip(0, max_duration)
+        
+        # Simple resize to target resolution - this will work reliably
+        target_width, target_height = self.resolution
+        clip = clip.resize((target_width, target_height))
         
         return clip
     
@@ -188,7 +197,7 @@ def main():
     parser.add_argument('--output', default='slideshow_output.mp4', help='Output video file')
     parser.add_argument('--music', help='Background music file')
     parser.add_argument('--duration', type=float, default=3.0, help='Duration for each image (seconds)')
-    parser.add_argument('--resolution', default='1280x720', help='Output resolution (e.g., 1280x720)')
+    parser.add_argument('--resolution', default='1920x1080', help='Output resolution (e.g., 1920x1080)')
     parser.add_argument('--no-transitions', action='store_true', help='Disable fade transitions')
     parser.add_argument('--fps', type=int, default=24, help='Frames per second')
     parser.add_argument('--no-randomize', action='store_true', help='Keep files in alphabetical order (disable randomization)')
@@ -202,8 +211,8 @@ def main():
         width, height = map(int, args.resolution.split('x'))
         resolution = (width, height)
     except:
-        print("Invalid resolution format. Using default 1280x720")
-        resolution = (1280, 720)
+        print("Invalid resolution format. Using default 1920x1080")
+        resolution = (1920, 1080)
     
     # Create slideshow maker
     slideshow_maker = SlideshowMaker(
