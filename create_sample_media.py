@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+
 """
 Creates sample media files for testing the slideshow maker
 """
